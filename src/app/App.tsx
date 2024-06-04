@@ -1,14 +1,15 @@
-import { ProductsPage } from "../modules/Product/ProductsPage.tsx";
+import { ProductsPage } from "../pages/Product/ProductsPage.tsx";
 import { useSelector } from "react-redux";
 import { selectUserId, selectRole } from "./store/slices/authSlice.ts";
 import { Navigate, Route, Routes } from "react-router-dom";
-import { LoginPage } from "../modules/Login/LoginPage.tsx";
+import { LoginPage } from "../pages/Login/LoginPage.tsx";
 import { Layout } from "../shared/components/Layout/Layout.tsx";
-import { ProductPage } from "../modules/Product/ProductPage.tsx";
-import CategoryPage from "../modules/Category/CategoryPage.tsx";
-import CategoryEdit from "../modules/Category/CategoryEdit.tsx";
-import SellerProducts from "../modules/Product/SellerProducts.tsx";
-import ProductEdit from "../modules/Product/ProductEdit.tsx";
+import { ProductPage } from "../pages/Product/ProductPage.tsx";
+import CategoryPage from "../pages/Category/CategoryPage.tsx";
+import CategoryEdit from "../pages/Category/CategoryEdit.tsx";
+import SellerProducts from "../pages/Product/SellerProducts.tsx";
+import ProductEdit from "../pages/Product/ProductEdit.tsx";
+import BasketPage from "../pages/Basket/BasketPage.tsx";
 
 export default function App() {
   const isAuth = useSelector(selectUserId);
@@ -95,7 +96,16 @@ export default function App() {
           />
         </>
       ) : (
-        <></>
+        <>
+          <Route
+            path={"/basket"}
+            element={
+              <Layout>
+                <BasketPage />
+              </Layout>
+            }
+          />
+        </>
       )}
       <Route path={"/*"} element={<Navigate to={"/products"} />} />
     </Routes>

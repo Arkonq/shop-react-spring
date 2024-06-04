@@ -1,10 +1,16 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { UserRole } from "../slices/authSlice.ts";
+import { RootState } from "../store.ts";
 
 const baseQuery = fetchBaseQuery({
   baseUrl: `http://localhost:8080`,
-  prepareHeaders: (headers) => {
-    headers.set("Authorization", `Basic ${btoa("admin:admin")}`);
+  prepareHeaders: (headers, { getState }) => {
+    headers.set(
+      "Authorization",
+      (getState() as RootState).auth.token
+        ? `Bearer ${(getState() as RootState).auth.token}`
+        : `Basic ${btoa("admin:admin")}`,
+    );
     headers.set("Accept", "*/*");
     return headers;
   },
@@ -19,18 +25,21 @@ export const MainApi = createApi({
       throw error;
     }
   },
-  tagTypes: ["category", "product"],
+  tagTypes: ["category", "product", "basket"],
   endpoints: (builder) => ({
-    getUser: builder.query<LoginResponseVM, UserVM>({
-      query: (login) => ({
-        url: `http://localhost:8080/users/email`,
-        method: "GET",
-        params: { email: login },
+    loginUser: builder.mutation<
+      { token: string },
+      { login: string; password: string }
+    >({
+      query: ({ login, password }) => ({
+        url: `http://localhost:8080/auth/login`,
+        method: "POST",
+        body: { login, password },
       }),
     }),
-    saveUser: builder.mutation<any, UserVM>({
+    registerUser: builder.mutation<any, UserVM>({
       query: (body) => ({
-        url: `http://localhost:8080/users/save`,
+        url: `http://localhost:8080/auth/register`,
         method: "POST",
         body,
       }),
@@ -92,18 +101,49 @@ export const MainApi = createApi({
         { type: "category", id: "LIST" },
       ],
     }),
+    getBasket: builder.query<BasketVM[], number>({
+      query: (userId) => ({
+        url: `http://localhost:8080/baskets/user/${userId}`,
+        method: "GET",
+      }),
+      providesTags: (_, __, arg) => [{ type: "basket", id: arg }],
+    }),
+    saveBasket: builder.mutation<
+      BasketVM,
+      { userId: number; productId: number; count: number }
+    >({
+      query: (params) => ({
+        url: `http://localhost:8080/baskets/save`,
+        method: "POST",
+        params,
+      }),
+      invalidatesTags: (res) => [{ type: "basket", id: res?.userId }],
+    }),
+    buyBasket: builder.mutation<BasketVM, { userId: number; basketId: number }>(
+      {
+        query: (params) => ({
+          url: `http://localhost:8080/baskets/buy`,
+          method: "POST",
+          params,
+        }),
+        invalidatesTags: (res) => [{ type: "basket", id: res?.userId }],
+      },
+    ),
   }),
 });
 
 export const {
-  useLazyGetUserQuery,
-  useSaveUserMutation,
+  useLoginUserMutation,
+  useRegisterUserMutation,
   useGetProductQuery,
   useGetProductsQuery,
   useSaveProductMutation,
   useGetCategoryQuery,
   useGetCategoriesQuery,
   useSaveCategoryMutation,
+  useGetBasketQuery,
+  useSaveBasketMutation,
+  useBuyBasketMutation,
 } = MainApi;
 
 export interface ProductVM {
@@ -125,13 +165,6 @@ export interface ProductVM {
   userId?: number;
 }
 
-export interface LoginResponseVM {
-  description: string;
-  error: number;
-  found: boolean;
-  user: UserVM | null;
-}
-
 export interface UserVM {
   userId: number;
   firstname: string;
@@ -148,4 +181,13 @@ export interface UserVM {
 export interface CategoryVM {
   categoryId?: number;
   categoryName: string;
+}
+
+export interface BasketVM {
+  basketId: number;
+  bought: string | null;
+  count: number;
+  total: number;
+  userId: number;
+  products: ProductVM[];
 }

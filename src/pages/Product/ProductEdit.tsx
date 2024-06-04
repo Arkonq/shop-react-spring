@@ -5,6 +5,7 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  styled,
 } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 import Typography from "@mui/material/Typography";
@@ -21,6 +22,19 @@ import {
 } from "../../app/store/api/MainApi.ts";
 import { useSelector } from "react-redux";
 import { selectUserId } from "../../app/store/slices/authSlice.ts";
+import { UploadFile } from "@mui/icons-material";
+
+const VisuallyHiddenInput = styled("input")({
+  clip: "rect(0 0 0 0)",
+  clipPath: "inset(50%)",
+  height: 1,
+  overflow: "hidden",
+  position: "absolute",
+  bottom: 0,
+  left: 0,
+  whiteSpace: "nowrap",
+  width: 1,
+});
 
 const ProductEdit = () => {
   const { id } = useParams();
@@ -37,19 +51,15 @@ const ProductEdit = () => {
     price: 0,
     count: 0,
   });
-  const [categoryId, setCategoryId] = useState();
   const selectRef = useRef();
+
+  const [file, setFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (!productData) return;
 
     setProduct(productData);
-    setCategoryId(String(productData.category!.categoryId));
   }, [productData]);
-
-  useEffect(() => {
-    console.log(product);
-  }, [product]);
 
   const handleChange = (event: any) => {
     const { name, value } = event.target;
@@ -61,8 +71,6 @@ const ProductEdit = () => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    console.log(product);
 
     try {
       await saveProduct({
@@ -83,12 +91,6 @@ const ProductEdit = () => {
         anchorOrigin: { vertical: "top", horizontal: "center" },
       });
     }
-  };
-
-  const [value, setValue] = useState("");
-
-  const handleChangeVal = (event) => {
-    setValue(event.target.value);
   };
 
   return (
@@ -187,6 +189,23 @@ const ProductEdit = () => {
             ))}
           </Select>
         </FormControl>
+        <Button
+          variant={"outlined"}
+          startIcon={<UploadFile />}
+          component={"label"}
+          role={undefined}
+          tabIndex={-1}
+        >
+          Upload Image
+          <VisuallyHiddenInput
+            type={"file"}
+            onChange={(e) => {
+              const file = e?.target?.files?.[0];
+              if (!file) return;
+              setFile(file);
+            }}
+          />
+        </Button>
         <Button type="submit" fullWidth variant="contained" sx={{ my: 2 }}>
           {id ? "Save" : "Create"}
         </Button>

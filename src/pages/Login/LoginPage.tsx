@@ -10,8 +10,8 @@ import { useDispatch } from "react-redux";
 import { setAuth, UserRole } from "../../app/store/slices/authSlice.ts";
 import { LockOpenOutlined, LockOutlined } from "@mui/icons-material";
 import {
-  useLazyGetUserQuery,
-  useSaveUserMutation,
+  useLoginUserMutation,
+  useRegisterUserMutation,
 } from "../../app/store/api/MainApi.ts";
 import { useSnackbar } from "notistack";
 import {
@@ -22,12 +22,13 @@ import {
   SelectChangeEvent,
 } from "@mui/material";
 import { formDataToObject } from "../../shared/utils/formDataToObject.ts";
+import { decodeJWT } from "../../shared/utils/decodeJWT.ts";
 
 export function LoginPage() {
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
-  const [login] = useLazyGetUserQuery();
-  const [register] = useSaveUserMutation();
+  const [login] = useLoginUserMutation();
+  const [register] = useRegisterUserMutation();
 
   const [isRegister, setIsRegister] = useState(false);
   const [role, setRole] = useState<UserRole>("BUYER");
@@ -40,20 +41,26 @@ export function LoginPage() {
 
     if (!isRegister) {
       try {
-        const response = await login(object.login).unwrap();
-        enqueueSnackbar(response.description, {
-          variant: response.error ? "error" : "success",
+        const response = await login({
+          login: object.login,
+          password: object.password,
+        }).unwrap();
+
+        enqueueSnackbar("Login successfully", {
+          variant: "success",
           autoHideDuration: 3000,
           anchorOrigin: { vertical: "top", horizontal: "center" },
         });
-        if (!response.error) {
-          dispatch(
-            setAuth({
-              userId: response.user!.userId,
-              role: response.user!.role,
-            }),
-          );
-        }
+
+        const decodedToken = decodeJWT(response.token);
+
+        dispatch(
+          setAuth({
+            userId: decodedToken.userId,
+            role: decodedToken.role,
+            token: response.token,
+          }),
+        );
       } catch (e: any) {
         enqueueSnackbar(e.data.description, {
           variant: "error",
@@ -65,11 +72,21 @@ export function LoginPage() {
       try {
         const response = await register(object).unwrap();
 
-        enqueueSnackbar(response.description, {
+        enqueueSnackbar("Registered successfully", {
           variant: "success",
           autoHideDuration: 3000,
           anchorOrigin: { vertical: "top", horizontal: "center" },
         });
+
+        const decodedToken = decodeJWT(response.token);
+
+        dispatch(
+          setAuth({
+            userId: decodedToken.userId,
+            role: decodedToken.role,
+            token: response.token,
+          }),
+        );
 
         setIsRegister(false);
       } catch (e: any) {
