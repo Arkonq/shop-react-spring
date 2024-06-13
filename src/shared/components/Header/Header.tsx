@@ -47,12 +47,17 @@ export const Header = () => {
               {...buttonProps}
               onClick={() => navigate("/seller-products")}
             >
-              Products
+              My Products
             </Button>
           ) : (
-            <Button {...buttonProps} onClick={() => navigate("/basket")}>
-              Basket
-            </Button>
+            <>
+              <Button {...buttonProps} onClick={() => navigate("/basket")}>
+                Basket
+              </Button>
+              <Button {...buttonProps} onClick={() => navigate("/purchases")}>
+                Purchases
+              </Button>
+            </>
           )}
           <Button {...buttonProps} onClick={() => dispatch(clearAuth())}>
             Logout

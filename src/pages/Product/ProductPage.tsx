@@ -52,6 +52,9 @@ export const ProductPage = () => {
                 {product.description}
               </Typography>
               <Typography color="text.secondary">
+                Quantity: {product.count}
+              </Typography>
+              <Typography color="text.secondary">
                 Seller: {product.user?.login}
               </Typography>
               {role === "BUYER" && (

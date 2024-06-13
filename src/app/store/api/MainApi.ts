@@ -25,8 +25,9 @@ export const MainApi = createApi({
       throw error;
     }
   },
-  tagTypes: ["category", "product", "basket"],
+  tagTypes: ["category", "product", "basket", "purchase"],
   endpoints: (builder) => ({
+    // USER
     loginUser: builder.mutation<
       { token: string },
       { login: string; password: string }
@@ -44,6 +45,7 @@ export const MainApi = createApi({
         body,
       }),
     }),
+    // PRODUCT
     getProduct: builder.query<ProductVM, number>({
       query: (params) => ({
         url: `/products/getProduct/${params}`,
@@ -73,6 +75,33 @@ export const MainApi = createApi({
         { type: "product", id: "LIST" },
       ],
     }),
+    getProductImage: builder.query<string, number>({
+      query: (productId) => ({
+        url: `/products/images/${productId}`,
+        method: "GET",
+      }),
+      providesTags: (_, __, arg) => [{ type: "product", id: arg }],
+    }),
+    saveProductImage: builder.mutation<any, { productId: number; image: File }>(
+      {
+        query: ({ productId, image }) => {
+          const formData = new FormData();
+          formData.append("image", image);
+          return {
+            url: `/products/${productId}/images`,
+            method: "POST",
+            body: formData,
+            contentType: "multipart/form-data",
+            formData: true,
+          };
+        },
+        invalidatesTags: (_, __, arg) => [
+          { type: "product", id: arg?.productId },
+          { type: "product", id: "LIST" },
+        ],
+      },
+    ),
+    // CATEGORY
     getCategory: builder.query<CategoryVM, string>({
       query: (id) => ({
         url: `http://localhost:8080/categories/get/${id}`,
@@ -101,6 +130,7 @@ export const MainApi = createApi({
         { type: "category", id: "LIST" },
       ],
     }),
+    // BASKET
     getBasket: builder.query<BasketVM[], number>({
       query: (userId) => ({
         url: `http://localhost:8080/baskets/user/${userId}`,
@@ -119,16 +149,28 @@ export const MainApi = createApi({
       }),
       invalidatesTags: (res) => [{ type: "basket", id: res?.userId }],
     }),
-    buyBasket: builder.mutation<BasketVM, { userId: number; basketId: number }>(
-      {
-        query: (params) => ({
-          url: `http://localhost:8080/baskets/buy`,
-          method: "POST",
-          params,
-        }),
-        invalidatesTags: (res) => [{ type: "basket", id: res?.userId }],
-      },
-    ),
+    buyBasket: builder.mutation<
+      BasketVM,
+      { userId: number; basketId: number; productId: number }
+    >({
+      query: ({ userId, basketId }) => ({
+        url: `http://localhost:8080/purchases/buy`,
+        method: "POST",
+        body: { userId, basketId },
+      }),
+      invalidatesTags: (_, __, args) => [
+        { type: "basket", id: args.userId },
+        { type: "purchase", id: args.userId },
+        { type: "product", id: args.productId },
+      ],
+    }),
+    getPurchase: builder.query<any, number>({
+      query: (userId) => ({
+        url: `http://localhost:8080/purchases/user/${userId}`,
+        method: "GET",
+      }),
+      providesTags: (_, __, args) => [{ type: "purchase", id: args }],
+    }),
   }),
 });
 
@@ -138,12 +180,15 @@ export const {
   useGetProductQuery,
   useGetProductsQuery,
   useSaveProductMutation,
+  useGetProductImageQuery,
+  useSaveProductImageMutation,
   useGetCategoryQuery,
   useGetCategoriesQuery,
   useSaveCategoryMutation,
   useGetBasketQuery,
   useSaveBasketMutation,
   useBuyBasketMutation,
+  useGetPurchaseQuery,
 } = MainApi;
 
 export interface ProductVM {

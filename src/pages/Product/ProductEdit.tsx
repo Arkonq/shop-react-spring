@@ -17,6 +17,7 @@ import { enqueueSnackbar } from "notistack";
 import {
   ProductVM,
   useGetCategoriesQuery,
+  useGetProductImageQuery,
   useGetProductQuery,
   useSaveProductMutation,
 } from "../../app/store/api/MainApi.ts";
@@ -44,6 +45,9 @@ const ProductEdit = () => {
   const [saveProduct] = useSaveProductMutation();
   const { data: categoriesData } = useGetCategoriesQuery();
   const { data: productData } = useGetProductQuery(Number(id)!, { skip: !id });
+  const { data: imageData } = useGetProductImageQuery(Number(id)!, {
+    skip: !id,
+  });
 
   const [product, setProduct] = useState<ProductVM>({
     name: "",
@@ -53,7 +57,7 @@ const ProductEdit = () => {
   });
   const selectRef = useRef();
 
-  const [file, setFile] = useState<File | null>(null);
+  const [_file, setFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (!productData) return;
@@ -124,6 +128,7 @@ const ProductEdit = () => {
           alignItems: "center",
         }}
       >
+        <Box>{imageData}</Box>
         <TextField
           margin="normal"
           required
