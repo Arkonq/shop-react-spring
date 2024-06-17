@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  CardMedia,
   FormControl,
   InputLabel,
   MenuItem,
@@ -19,6 +20,7 @@ import {
   useGetCategoriesQuery,
   useGetProductImageQuery,
   useGetProductQuery,
+  useSaveProductImageMutation,
   useSaveProductMutation,
 } from "../../app/store/api/MainApi.ts";
 import { useSelector } from "react-redux";
@@ -48,6 +50,7 @@ const ProductEdit = () => {
   const { data: imageData } = useGetProductImageQuery(Number(id)!, {
     skip: !id,
   });
+  const [saveImage] = useSaveProductImageMutation();
 
   const [product, setProduct] = useState<ProductVM>({
     name: "",
@@ -57,11 +60,8 @@ const ProductEdit = () => {
   });
   const selectRef = useRef();
 
-  const [_file, setFile] = useState<File | null>(null);
-
   useEffect(() => {
     if (!productData) return;
-
     setProduct(productData);
   }, [productData]);
 
@@ -128,7 +128,21 @@ const ProductEdit = () => {
           alignItems: "center",
         }}
       >
-        <Box>{imageData}</Box>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
+          }}
+        >
+          {imageData?.map((image) => (
+            <CardMedia
+              component="img"
+              src={`data:image/png;base64, ${image}`}
+              sx={{ width: "100px", height: "100px" }}
+            />
+          ))}
+        </Box>
         <TextField
           margin="normal"
           required
@@ -206,8 +220,14 @@ const ProductEdit = () => {
             type={"file"}
             onChange={(e) => {
               const file = e?.target?.files?.[0];
-              if (!file) return;
-              setFile(file);
+              if (!file || !id) return;
+              if (!file?.type.includes("image"))
+                return enqueueSnackbar("Please select an image", {
+                  variant: "warning",
+                  autoHideDuration: 3000,
+                  anchorOrigin: { vertical: "top", horizontal: "center" },
+                });
+              saveImage({ productId: Number(id), image: file });
             }}
           />
         </Button>

@@ -1,9 +1,17 @@
 import Container from "@mui/material/Container";
 import {
+  useGetProductImageQuery,
   useGetProductQuery,
   useSaveBasketMutation,
 } from "../../app/store/api/MainApi.ts";
-import { Box, Card, CardContent, Grid, IconButton } from "@mui/material";
+import {
+  Box,
+  Card,
+  CardContent,
+  CardMedia,
+  Grid,
+  IconButton,
+} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -24,6 +32,9 @@ export const ProductPage = () => {
 
   const [quantity, setQuantity] = useState(1);
   const { data: product } = useGetProductQuery(Number(id), { skip: !id });
+  const { data: imageData } = useGetProductImageQuery(Number(id)!, {
+    skip: !id,
+  });
   const [saveBasket] = useSaveBasketMutation();
 
   if (!product) return <></>;
@@ -37,6 +48,21 @@ export const ProductPage = () => {
         <Grid item sm={12}>
           <Card sx={{ display: "flex" }}>
             <CardContent sx={{ flex: 1 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px",
+                }}
+              >
+                {imageData?.map((image) => (
+                  <CardMedia
+                    component="img"
+                    src={`data:image/png;base64, ${image}`}
+                    sx={{ width: "100px", height: "100px" }}
+                  />
+                ))}
+              </Box>
               <Typography
                 component="h2"
                 variant="h5"

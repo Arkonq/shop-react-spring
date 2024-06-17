@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { UserRole } from "../slices/authSlice.ts";
+import { clearAuth, UserRole } from "../slices/authSlice.ts";
 import { RootState } from "../store.ts";
+import { enqueueSnackbar } from "notistack";
 
 const baseQuery = fetchBaseQuery({
   baseUrl: `http://localhost:8080`,
@@ -19,7 +20,29 @@ const baseQuery = fetchBaseQuery({
 export const MainApi = createApi({
   baseQuery: async (args, api, extraOptions) => {
     try {
-      return await baseQuery(args, api, extraOptions);
+      const result: any = await baseQuery(args, api, extraOptions);
+      if (
+        result &&
+        result.error &&
+        result.error.status === 401 &&
+        (api.getState() as any).auth.token
+      ) {
+        api.dispatch(clearAuth());
+        enqueueSnackbar("Token duration expired", {
+          variant: "error",
+          autoHideDuration: 3000,
+          anchorOrigin: { vertical: "top", horizontal: "center" },
+        });
+        return;
+      }
+      if (result && result.error && result.error.data.errorMessage) {
+        enqueueSnackbar(result.error.data.errorMessage, {
+          variant: "error",
+          autoHideDuration: 3000,
+          anchorOrigin: { vertical: "top", horizontal: "center" },
+        });
+      }
+      return result;
     } catch (error) {
       console.error("Error occurred during API call:", error);
       throw error;
@@ -75,7 +98,7 @@ export const MainApi = createApi({
         { type: "product", id: "LIST" },
       ],
     }),
-    getProductImage: builder.query<string, number>({
+    getProductImage: builder.query<string[], number>({
       query: (productId) => ({
         url: `/products/images/${productId}`,
         method: "GET",
