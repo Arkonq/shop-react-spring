@@ -21,7 +21,7 @@ export const Header = () => {
   const navigate = useNavigate();
 
   return (
-    <AppBar component="header" sx={{ height: "48px" }}>
+    <AppBar component="header" sx={{ height: "48px", position: "relative" }}>
       <Container
         maxWidth="md"
         sx={{
@@ -38,6 +38,9 @@ export const Header = () => {
           </Typography>
         </Link>
         <Box sx={{ display: "flex", gap: "8px" }}>
+          <Button {...buttonProps} onClick={() => navigate("/messages")}>
+            Messages
+          </Button>
           {role === "ADMIN" ? (
             <Button {...buttonProps} onClick={() => navigate("/categories")}>
               Categories

@@ -11,7 +11,7 @@ const PurchasesPage = () => {
   });
 
   return (
-    <Container component="main" sx={{ mt: 8, mb: 2 }} maxWidth="md">
+    <Container component="main" sx={{ mt: 2, mb: 2 }} maxWidth="md">
       <Typography component="h6" variant="h5">
         Purchases
       </Typography>

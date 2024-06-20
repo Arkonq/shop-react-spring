@@ -48,7 +48,7 @@ export const MainApi = createApi({
       throw error;
     }
   },
-  tagTypes: ["category", "product", "basket", "purchase"],
+  tagTypes: ["category", "product", "basket", "purchase", "dialogue"],
   endpoints: (builder) => ({
     // USER
     loginUser: builder.mutation<
@@ -66,6 +66,13 @@ export const MainApi = createApi({
         url: `http://localhost:8080/auth/register`,
         method: "POST",
         body,
+      }),
+    }),
+    // TODO: убрать позже
+    getUserList: builder.query<UserVM[], void>({
+      query: () => ({
+        url: `/users/getAll`,
+        method: "GET",
       }),
     }),
     // PRODUCT
@@ -194,12 +201,40 @@ export const MainApi = createApi({
       }),
       providesTags: (_, __, args) => [{ type: "purchase", id: args }],
     }),
+    // MESSAGE
+    getDialogue: builder.query<
+      MessageVM[],
+      { senderId: number; recipientId: number }
+    >({
+      query: (params) => ({
+        url: `http://localhost:8080/messages/between/users`,
+        method: "GET",
+        params,
+      }),
+      providesTags: (_, __, args) => [
+        { type: "dialogue", id: args.recipientId },
+      ],
+    }),
+    sendMessage: builder.mutation<
+      any,
+      { senderId: number; recipientId: number; text: string }
+    >({
+      query: (params) => ({
+        url: `http://localhost:8080/messages/sender/senderId/recipient/recipientId`,
+        method: "POST",
+        params,
+      }),
+      invalidatesTags: (_, __, args) => [
+        { type: "dialogue", id: args.recipientId },
+      ],
+    }),
   }),
 });
 
 export const {
   useLoginUserMutation,
   useRegisterUserMutation,
+  useGetUserListQuery,
   useGetProductQuery,
   useGetProductsQuery,
   useSaveProductMutation,
@@ -212,6 +247,8 @@ export const {
   useSaveBasketMutation,
   useBuyBasketMutation,
   useGetPurchaseQuery,
+  useGetDialogueQuery,
+  useSendMessageMutation,
 } = MainApi;
 
 export interface ProductVM {
@@ -258,4 +295,20 @@ export interface BasketVM {
   total: number;
   userId: number;
   products: ProductVM[];
+}
+
+export interface MessageVM {
+  messageId: number;
+  senderId: number;
+  recipientId: number;
+  text: string;
+  timestamp: string;
+  sender: MessageUserVM;
+  recipient: MessageUserVM;
+}
+
+export interface MessageUserVM {
+  userId: number;
+  login: string;
+  email: string;
 }

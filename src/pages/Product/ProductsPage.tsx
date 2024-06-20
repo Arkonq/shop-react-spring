@@ -24,7 +24,7 @@ export const ProductsPage = () => {
   );
 
   return (
-    <Container component="main" sx={{ mt: 8, mb: 2 }} maxWidth="md">
+    <Container component="main" sx={{ mt: 2, mb: 2 }} maxWidth="md">
       <FormControl fullWidth margin={"normal"}>
         <InputLabel id="category-label">Category</InputLabel>
         <Select
@@ -51,7 +51,7 @@ export const ProductsPage = () => {
       </FormControl>
       <Grid container spacing={4}>
         {productsData?.map((product) => (
-          <Grid item sm={6} xs={12} md={4}>
+          <Grid item sm={6} xs={12} md={4} key={product.productId}>
             <Link to={`/products/${product.productId}`}>
               <Card sx={{ display: "flex" }}>
                 <CardContent sx={{ flex: 1 }}>

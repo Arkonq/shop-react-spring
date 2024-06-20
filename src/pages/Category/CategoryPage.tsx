@@ -15,7 +15,7 @@ const CategoryPage = () => {
   const navigate = useNavigate();
 
   return (
-    <Container component="main" sx={{ mt: 8, mb: 2 }} maxWidth="md">
+    <Container component="main" sx={{ mt: 2, mb: 2 }} maxWidth="md">
       <Box
         sx={{
           display: "flex",

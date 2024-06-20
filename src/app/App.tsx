@@ -11,6 +11,7 @@ import SellerProducts from "../pages/Product/SellerProducts.tsx";
 import ProductEdit from "../pages/Product/ProductEdit.tsx";
 import BasketPage from "../pages/Basket/BasketPage.tsx";
 import PurchasesPage from "../pages/Purchase/PurchasesPage.tsx";
+import { MessagesPage } from "../pages/Message/MessagesPage.tsx";
 
 export default function App() {
   const isAuth = useSelector(selectUserId);
@@ -39,6 +40,14 @@ export default function App() {
         element={
           <Layout>
             <ProductPage />
+          </Layout>
+        }
+      />
+      <Route
+        path={"/messages"}
+        element={
+          <Layout>
+            <MessagesPage />
           </Layout>
         }
       />

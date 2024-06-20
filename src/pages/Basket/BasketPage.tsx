@@ -22,7 +22,7 @@ const BasketPage = () => {
   const [buyBasket] = useBuyBasketMutation();
 
   return (
-    <Container component="main" sx={{ mt: 8, mb: 2 }} maxWidth="md">
+    <Container component="main" sx={{ mt: 2, mb: 2 }} maxWidth="md">
       <Typography component="h6" variant="h5">
         Basket
       </Typography>
@@ -55,7 +55,7 @@ const BasketPage = () => {
                       buyBasket({
                         userId: userId!,
                         basketId: basket.basketId,
-                        productId: basket.products[0].productId,
+                        productId: basket.products[0]?.productId ?? -1,
                       });
                     }}
                   >

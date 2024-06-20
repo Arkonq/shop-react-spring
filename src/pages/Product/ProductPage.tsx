@@ -40,9 +40,15 @@ export const ProductPage = () => {
   if (!product) return <></>;
 
   return (
-    <Container component="main" sx={{ mt: 8, mb: 2 }} maxWidth="md">
+    <Container component="main" sx={{ mt: 2, mb: 2 }} maxWidth="md">
       <Button onClick={() => navigate(-1)}>
-        <ArrowLeft sx={{ p: 1, border: 1, borderRadius: 6 }} />
+        <ArrowLeft
+          sx={{
+            border: 1,
+            borderRadius: 6,
+          }}
+          className={"button-icon"}
+        />
       </Button>
       <Grid container spacing={4}>
         <Grid item sm={12}>

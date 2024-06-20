@@ -8,13 +8,22 @@ export const Layout = ({ children }: { children: JSX.Element }) => {
       sx={{
         display: "flex",
         flexDirection: "column",
-        minHeight: "100vh",
-        minWidth: "100vw",
+        height: "100vh",
+        width: "100vw",
       }}
     >
       <Header />
-      {children}
-      <Footer />
+      <Box
+        sx={{
+          overflow: "auto",
+          display: "flex",
+          flexDirection: "column",
+          flex: 1,
+        }}
+      >
+        <Box sx={{ flex: 1 }}>{children}</Box>
+        <Footer />
+      </Box>
     </Box>
   );
 };
