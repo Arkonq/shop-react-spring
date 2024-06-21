@@ -23,6 +23,7 @@ import Button from "@mui/material/Button";
 import { selectRole, selectUserId } from "../../app/store/slices/authSlice.ts";
 import { useSelector } from "react-redux";
 import { useState } from "react";
+import { ProductImage } from "./ProductImage.tsx";
 
 export const ProductPage = () => {
   const { id } = useParams();
@@ -32,12 +33,9 @@ export const ProductPage = () => {
 
   const [quantity, setQuantity] = useState(1);
   const { data: product } = useGetProductQuery(Number(id), { skip: !id });
-  const { data: imageData } = useGetProductImageQuery(Number(id)!, {
-    skip: !id,
-  });
   const [saveBasket] = useSaveBasketMutation();
 
-  if (!product) return <></>;
+  if (!product || !id) return <></>;
 
   return (
     <Container component="main" sx={{ mt: 2, mb: 2 }} maxWidth="md">
@@ -54,21 +52,7 @@ export const ProductPage = () => {
         <Grid item sm={12}>
           <Card sx={{ display: "flex" }}>
             <CardContent sx={{ flex: 1 }}>
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "12px",
-                }}
-              >
-                {imageData?.map((image) => (
-                  <CardMedia
-                    component="img"
-                    src={`data:image/png;base64, ${image}`}
-                    sx={{ width: "100px", height: "100px" }}
-                  />
-                ))}
-              </Box>
+              <ProductImage productId={Number(id)} multiple />
               <Typography
                 component="h2"
                 variant="h5"

@@ -15,6 +15,7 @@ import {
 import Typography from "@mui/material/Typography";
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import { ProductImage } from "./ProductImage.tsx";
 
 export const ProductsPage = () => {
   const [categoryId, setCategoryId] = useState<number>(0);
@@ -55,6 +56,7 @@ export const ProductsPage = () => {
             <Link to={`/products/${product.productId}`}>
               <Card sx={{ display: "flex" }}>
                 <CardContent sx={{ flex: 1 }}>
+                  <ProductImage productId={product.productId!} />
                   <Typography
                     component="h2"
                     variant="h5"

@@ -1,7 +1,6 @@
 import {
   Box,
   Button,
-  CardMedia,
   FormControl,
   InputLabel,
   MenuItem,
@@ -18,7 +17,6 @@ import { enqueueSnackbar } from "notistack";
 import {
   ProductVM,
   useGetCategoriesQuery,
-  useGetProductImageQuery,
   useGetProductQuery,
   useSaveProductImageMutation,
   useSaveProductMutation,
@@ -26,6 +24,7 @@ import {
 import { useSelector } from "react-redux";
 import { selectUserId } from "../../app/store/slices/authSlice.ts";
 import { UploadFile } from "@mui/icons-material";
+import { ProductImage } from "./ProductImage.tsx";
 
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -47,9 +46,6 @@ const ProductEdit = () => {
   const [saveProduct] = useSaveProductMutation();
   const { data: categoriesData } = useGetCategoriesQuery();
   const { data: productData } = useGetProductQuery(Number(id)!, { skip: !id });
-  const { data: imageData } = useGetProductImageQuery(Number(id)!, {
-    skip: !id,
-  });
   const [saveImage] = useSaveProductImageMutation();
 
   const [product, setProduct] = useState<ProductVM>({
@@ -128,21 +124,35 @@ const ProductEdit = () => {
           alignItems: "center",
         }}
       >
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: "12px",
-          }}
-        >
-          {imageData?.map((image) => (
-            <CardMedia
-              component="img"
-              src={`data:image/png;base64, ${image}`}
-              sx={{ width: "100px", height: "100px" }}
-            />
-          ))}
-        </Box>
+        {id && (
+          <>
+            <ProductImage productId={Number(id)} multiple />
+            <Button
+              variant={"outlined"}
+              startIcon={<UploadFile />}
+              component={"label"}
+              role={undefined}
+              tabIndex={-1}
+              sx={{ mt: 2 }}
+            >
+              Upload Image
+              <VisuallyHiddenInput
+                type={"file"}
+                onChange={(e) => {
+                  const file = e?.target?.files?.[0];
+                  if (!file || !id) return;
+                  if (!file?.type.includes("image"))
+                    return enqueueSnackbar("Please select an image", {
+                      variant: "warning",
+                      autoHideDuration: 3000,
+                      anchorOrigin: { vertical: "top", horizontal: "center" },
+                    });
+                  saveImage({ productId: Number(id), image: file });
+                }}
+              />
+            </Button>
+          </>
+        )}
         <TextField
           margin="normal"
           required
@@ -208,29 +218,6 @@ const ProductEdit = () => {
             ))}
           </Select>
         </FormControl>
-        <Button
-          variant={"outlined"}
-          startIcon={<UploadFile />}
-          component={"label"}
-          role={undefined}
-          tabIndex={-1}
-        >
-          Upload Image
-          <VisuallyHiddenInput
-            type={"file"}
-            onChange={(e) => {
-              const file = e?.target?.files?.[0];
-              if (!file || !id) return;
-              if (!file?.type.includes("image"))
-                return enqueueSnackbar("Please select an image", {
-                  variant: "warning",
-                  autoHideDuration: 3000,
-                  anchorOrigin: { vertical: "top", horizontal: "center" },
-                });
-              saveImage({ productId: Number(id), image: file });
-            }}
-          />
-        </Button>
         <Button type="submit" fullWidth variant="contained" sx={{ my: 2 }}>
           {id ? "Save" : "Create"}
         </Button>

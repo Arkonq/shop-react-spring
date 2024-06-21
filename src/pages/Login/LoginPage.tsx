@@ -62,7 +62,8 @@ export function LoginPage() {
           }),
         );
       } catch (e: any) {
-        enqueueSnackbar(e.data.description, {
+        console.error(e);
+        enqueueSnackbar(e.message, {
           variant: "error",
           autoHideDuration: 3000,
           anchorOrigin: { vertical: "top", horizontal: "center" },
@@ -90,7 +91,8 @@ export function LoginPage() {
 
         setIsRegister(false);
       } catch (e: any) {
-        enqueueSnackbar(e.data.description, {
+        console.error(e);
+        enqueueSnackbar(e.message, {
           variant: "error",
           autoHideDuration: 3000,
           anchorOrigin: { vertical: "top", horizontal: "center" },

@@ -11,6 +11,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useGetProductsQuery } from "../../app/store/api/MainApi.ts";
 import { useSelector } from "react-redux";
 import { selectUserId } from "../../app/store/slices/authSlice.ts";
+import { ProductImage } from "./ProductImage.tsx";
 
 const SellerProducts = () => {
   const userId = useSelector(selectUserId);
@@ -46,6 +47,7 @@ const SellerProducts = () => {
             <Link to={`/seller-products/${product.productId}`}>
               <Card sx={{ display: "flex" }}>
                 <CardContent sx={{ flex: 1 }}>
+                  <ProductImage productId={product.productId!} />
                   <Typography component="h6" variant="h6">
                     {product.name}
                   </Typography>

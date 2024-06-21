@@ -194,12 +194,20 @@ export const MainApi = createApi({
         { type: "product", id: args.productId },
       ],
     }),
-    getPurchase: builder.query<any, number>({
+    // PURCHASE
+    getPurchase: builder.query<PurchaseVM[], number>({
       query: (userId) => ({
         url: `http://localhost:8080/purchases/user/${userId}`,
         method: "GET",
       }),
       providesTags: (_, __, args) => [{ type: "purchase", id: args }],
+    }),
+    getPurchaseList: builder.query<PurchaseVM[], void>({
+      query: () => ({
+        url: `http://localhost:8080/purchases/getAll`,
+        method: "GET",
+      }),
+      providesTags: [{ type: "purchase", id: "LIST" }],
     }),
     // MESSAGE
     getDialogue: builder.query<
@@ -239,6 +247,7 @@ export const {
   useGetProductsQuery,
   useSaveProductMutation,
   useGetProductImageQuery,
+  useLazyGetProductImageQuery,
   useSaveProductImageMutation,
   useGetCategoryQuery,
   useGetCategoriesQuery,
@@ -247,6 +256,7 @@ export const {
   useSaveBasketMutation,
   useBuyBasketMutation,
   useGetPurchaseQuery,
+  useGetPurchaseListQuery,
   useGetDialogueQuery,
   useSendMessageMutation,
 } = MainApi;
@@ -311,4 +321,12 @@ export interface MessageUserVM {
   userId: number;
   login: string;
   email: string;
+}
+
+export interface PurchaseVM {
+  purchaseId: number;
+  userId: number;
+  productId: number;
+  count: number;
+  purchaseDate: string;
 }
